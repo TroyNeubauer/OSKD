@@ -82,11 +82,11 @@ async fn main() -> Result<()> {
                 let config_file = env::current_dir().unwrap().join("config.json");
 
                 if config_file.exists() {
-                    return fs::read_to_string(config_file).unwrap();
+                    fs::read_to_string(config_file).unwrap()
                 } else {
                     let config = include_str!("../public/default_config.json").to_string();
                     fs::write(config_file, config.clone()).unwrap();
-                    return config;
+                    config
                 }
             }),
         )
