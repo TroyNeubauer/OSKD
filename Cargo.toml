@@ -4,6 +4,7 @@ version = "0.1.1"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.81"
 axum = "0.6.17"
 http = "0.2.9"
 procfs = "0.16.0"

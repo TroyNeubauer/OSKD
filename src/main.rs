@@ -1,3 +1,6 @@
+mod detect_sudo;
+
+use anyhow::Result;
 use axum::{body::Body, routing::get, Server};
 use http::Response;
 use rdev::{listen, Event};
@@ -6,17 +9,18 @@ use socketio_server::{
 };
 use std::{
     env, fs,
-    sync::{Arc, Mutex},
+    sync::{atomic::Ordering, Arc, Mutex},
     time::Duration,
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     println!("Starting application...");
 
     // Create client list.
     let clients = Arc::new(Mutex::new(Vec::<Arc<Socket>>::new()));
     let clients_clone = clients.clone();
+    let _detect_sudo_task = detect_sudo::run();
 
     // Create Socket.IO server.
     let config = SocketIoConfig::builder()
@@ -36,6 +40,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Listen keyboard.
     let callback = move |event: Event| {
+        if detect_sudo::SUDO_READING_INPUT.load(Ordering::Acquire) {
+            return;
+        }
+
         let json = serde_json::to_string(&event).unwrap();
         let clients_lock = clients.lock().unwrap();
 
