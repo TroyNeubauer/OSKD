@@ -20,14 +20,20 @@
         packages.default = oskd;
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ oskd ];
+          # Don't use `inputsFrom = [ oskd ]`, since we want to use the rust overlay for the shell
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
 
           buildInputs = with pkgs; [
-            rustup
-            rust-analyzer
+            rust
+            pkgs.xorg.libX11
+            pkgs.xorg.libXi
+            pkgs.xorg.libXtst
           ];
 
           shellHook = ''
+            export RUST_SRC_PATH="${rust}";
             export LD_LIBRARY_PATH=${pkgs.xorg.libX11}/lib:$LD_LIBRARY_PATH
             export LD_LIBRARY_PATH=${pkgs.xorg.libXtst}/lib:$LD_LIBRARY_PATH
           '';
