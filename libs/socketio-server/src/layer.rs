@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use engineio_server::{engine::EngineIo, service::EngineIoService};
 use tower::Layer;
@@ -31,11 +31,7 @@ impl<S> Layer<S> for SocketIoLayer {
 
     fn layer(&self, inner: S) -> Self::Service {
         let engine: Arc<EngineIo<Client>> = Arc::new_cyclic(|e| {
-            let client = Client::new(
-                self.config.clone(),
-                e.clone(),
-                self.ns_handlers.clone(),
-            );
+            let client = Client::new(self.config.clone(), e.clone(), self.ns_handlers.clone());
             EngineIo::from_config(client.into(), self.config.engine_config.clone()).into()
         });
 
